@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Value Investing Tool</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">◆</span>
+    <div>
+      <h1>Value Investing Tool</h1>
+      <p class="tagline">Graham · Buffett · Munger</p>
+    </div>
+  </div>
+  <nav class="tabs" role="tablist">
+    <button class="tab active" data-tab="analyze">Analizza titolo</button>
+    <button class="tab" data-tab="screen">Screener</button>
+    <button class="tab" data-tab="portfolio">Portafoglio</button>
+    <button class="tab" data-tab="settings">Parametri</button>
+    <button class="tab" data-tab="method">Metodo</button>
+  </nav>
+</header>
+
+<main>
+  <!-- ANALIZZA -->
+  <section id="tab-analyze" class="panel active">
+    <form id="analyze-form" class="searchbar">
+      <input id="ticker-input" placeholder="Ticker Yahoo Finance (es. KO, AAPL, ENI.MI, NESN.SW, ULVR.L)" autocomplete="off" required>
+      <label class="chk"><input type="checkbox" id="analyze-refresh"> dati aggiornati</label>
+      <button type="submit" class="primary">Analizza</button>
+    </form>
+    <div id="analyze-result"></div>
+  </section>
+
+  <!-- SCREENER -->
+  <section id="tab-screen" class="panel">
+    <form id="screen-form" class="card form-grid">
+      <label>Universo
+        <select id="screen-universe"></select>
+      </label>
+      <label class="wide">Ticker aggiuntivi (separati da virgola)
+        <input id="screen-tickers" placeholder="es. ADBE, PRY.MI, NOVO-B.CO">
+      </label>
+      <button type="submit" class="primary">Avvia screening</button>
+    </form>
+    <p class="hint">La prima esecuzione scarica i dati di ogni titolo (circa 1–3 minuti per 60 titoli); poi restano in cache per 24 ore.</p>
+    <div id="screen-result"></div>
+  </section>
+
+  <!-- PORTAFOGLIO -->
+  <section id="tab-portfolio" class="panel">
+    <form id="portfolio-form" class="card form-grid">
+      <label>Capitale
+        <input id="pf-capital" type="number" min="100" step="100" value="10000">
+      </label>
+      <label>Valuta
+        <select id="pf-currency"><option>EUR</option><option>USD</option><option>CHF</option><option>GBP</option></select>
+      </label>
+      <label>Universo
+        <select id="pf-universe"></select>
+      </label>
+      <label>N° massimo titoli
+        <input id="pf-maxpos" type="number" min="1" max="30" value="10">
+      </label>
+      <label>Peso max per titolo (%)
+        <input id="pf-maxw" type="number" min="5" max="100" value="20">
+      </label>
+      <label>Peso max per settore (%)
+        <input id="pf-maxs" type="number" min="10" max="100" value="35">
+      </label>
+      <label class="wide">Ticker aggiuntivi
+        <input id="pf-tickers" placeholder="es. MSFT, RACE.MI">
+      </label>
+      <button type="submit" class="primary">Costruisci portafoglio</button>
+    </form>
+    <div id="portfolio-result"></div>
+  </section>
+
+  <!-- PARAMETRI -->
+  <section id="tab-settings" class="panel">
+    <div class="card">
+      <h2>Parametri di valutazione</h2>
+      <p class="hint">Valgono per analisi, screener e portafoglio. Sono salvati nel browser.</p>
+      <form id="settings-form" class="form-grid">
+        <label>Rendimento annuo minimo richiesto (%)
+          <input name="target_return" type="number" step="0.5" min="0" max="50">
+          <small>Obiettivo per il giudizio "COMPRA". 20% è molto ambizioso: pochi titoli lo superano.</small>
+        </label>
+        <label>Margine di sicurezza minimo (%)
+          <input name="min_margin_of_safety" type="number" step="1" min="0" max="90">
+          <small>Sconto richiesto sul valore intrinseco (Graham: 33%).</small>
+        </label>
+        <label>Tasso di sconto (%)
+          <input name="discount_rate" type="number" step="0.5" min="4" max="25">
+          <small>Usato per il valore intrinseco (DCF).</small>
+        </label>
+        <label>Crescita massima ipotizzata (%)
+          <input name="max_growth" type="number" step="0.5" min="0" max="40">
+          <small>Tetto prudenziale alla crescita storica.</small>
+        </label>
+        <label>Crescita perpetua (%)
+          <input name="terminal_growth" type="number" step="0.5" min="0" max="5">
+        </label>
+        <label>Multiplo di uscita (x owner earnings)
+          <input name="exit_multiple" type="number" step="1" min="5" max="40">
+          <small>Prezzo di rivendita ipotizzato a fine orizzonte (10 anni).</small>
+        </label>
+        <div class="actions wide">
+          <button type="submit" class="primary">Salva</button>
+          <button type="button" id="settings-reset">Ripristina predefiniti</button>
+          <span id="settings-saved" class="hint"></span>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- METODO -->
+  <section id="tab-method" class="panel">
+    <div class="card prose">
+      <h2>Come ragiona il tool</h2>
+      <p>Ogni titolo passa tre filtri, che riflettono i principi dei tre maestri del value investing:</p>
+      <ol>
+        <li><strong>Qualità del business (Buffett e Munger).</strong> ROE e ROIC alti e costanti, margini lordi elevati e stabili, utili e free cash flow sempre positivi, pochi investimenti necessari, nessuna diluizione degli azionisti, compensi in azioni contenuti. È la ricerca del <em>vantaggio competitivo durevole</em>.</li>
+        <li><strong>Solidità finanziaria (Graham e Buffett).</strong> Current ratio, debito/patrimonio, debito ripagabile in pochi anni di flussi di cassa, copertura degli interessi, storia dei dividendi.</li>
+        <li><strong>Prezzo (Graham e Buffett).</strong> Il valore intrinseco si stima scontando gli <em>owner earnings</em> (free cash flow meno compensi in azioni) con una crescita prudente, limitata e in rallentamento. Poi si calcola il <em>rendimento annuo atteso</em> comprando al prezzo di oggi, e si confronta con i criteri classici di Graham (P/E ≤ 15, P/E×P/B ≤ 22,5, Graham Number).</li>
+      </ol>
+      <h3>I giudizi</h3>
+      <ul>
+        <li><span class="badge v-COMPRA">COMPRA</span> qualità, solidità, margine di sicurezza e rendimento atteso sopra soglia.</li>
+        <li><span class="badge v-OSSERVA">OSSERVA</span> ottima azienda ma troppo cara: il tool indica il <em>prezzo d'acquisto massimo</em>.</li>
+        <li><span class="badge v-VALUE-SPECULATIVO">VALUE SPECULATIVO</span> molto economica ma di qualità mediocre (le "cicche di sigaro" di Graham).</li>
+        <li><span class="badge v-EVITA">EVITA</span> non soddisfa i criteri.</li>
+      </ul>
+      <h3>Il portafoglio</h3>
+      <p>Si scelgono i titoli con giudizio COMPRA, ordinati per rendimento atteso × qualità, con tetti per titolo e per settore. Se pochi titoli sono convenienti, il resto rimane <strong>liquido</strong>: comprare a prezzi sbagliati per "essere investiti" è l'errore che Buffett e Munger evitano.</p>
+      <h3>Limiti da conoscere</h3>
+      <ul>
+        <li>I dati gratuiti di Yahoo Finance coprono circa 4–5 anni di bilanci, mentre Graham e Buffett ne esaminavano 10 o più.</li>
+        <li>Nessun modello misura il management, il vantaggio competitivo o il tuo cerchio di competenza: per questo ogni analisi include le domande qualitative.</li>
+        <li>Un rendimento del 20% annuo è stato raggiunto da pochissimi investitori nella storia. Il tool cerca le opportunità migliori, ma non può garantire risultati.</li>
+      </ul>
+      <p class="disclaimer">Strumento didattico e di supporto alle decisioni. Non costituisce consulenza finanziaria.</p>
+    </div>
+  </section>
+</main>
+
+<footer>Dati: Yahoo Finance (possono contenere errori o ritardi). Non è consulenza finanziaria.</footer>
+<script src="app.js"></script>
+</body>
+</html>
